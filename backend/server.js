@@ -11,7 +11,7 @@ mongoose.connect("mongodb://localhost:27017/celebalFly",{
 }).then(()=>console.log("MongoDB connected."))
 .catch((err)=> console.log(err));
 
-app.use(bodyparser.urlencoded({extended:true}));
+app.use(bodyparser.urlencoded({extended:false}));
 
 app.use(express.static(path.join(__dirname,'../frontend/public')));
 
@@ -28,9 +28,10 @@ app.get('/login',(req,res)=>{
 //signup page handle karna hai
 app.post('/signup',async(req,res)=>{
     try{
+        console.log(req.body);
         const{name,email,password}=req.body;
-        if(!name||!email||!password){
-            return res.redirect('/signup?error=missinng');
+        if(!name || !email || !password){
+            return res.redirect('/signup?error=missing');
         }
         await User.create({name,email,password});
         res.redirect('/login');
