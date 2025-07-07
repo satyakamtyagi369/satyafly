@@ -3,6 +3,7 @@ const path = require("path");
 const mongoose =require('mongoose');
 const bodyparser = require('body-parser');
 const User = require('./models/User');
+const session=require('express-session');
 const port = 3000;
 const app = express();
 mongoose.connect("mongodb://localhost:27017/celebalFly",{
@@ -14,7 +15,11 @@ mongoose.connect("mongodb://localhost:27017/celebalFly",{
 app.use(bodyparser.urlencoded({extended:false}));
 
 app.use(express.static(path.join(__dirname,'../frontend/public')));
-
+app.use(session({
+    secret:'celebalFlySecret',
+    resave:false,
+    saveUninitialized:false
+}));
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'../frontend/public/index.html'));
 })
@@ -49,8 +54,27 @@ app.post('/login',async(req,res)=>{
         //user nahi hai, toh pehle signup karo.
         return res.redirect('/signup?error=missing');
     }
-    res.redirect('/');
+    req.session.user=user;
+    res.redirect('/dashboard');
 })
+app.get('/dashboard',(req,res)=>{
+    if(!req.session.user){
+        return res.redirect('/login');
+    }
+    res.sendFile(path.join(__dirname,'../frontend/public/dashboard.html'));
+});
+app.get('/user',(req,res)=>{
+    if(!req.session.user){
+        return res.status(401).json({error: 'Not logged in.'});
+    }
+    res.json(req.session.user);
+})
+app.get('/dashboard/chatbot/',(req,res)=>{
+    if(!req.session.user){
+        return res.redirect('/login');
+    }
+    res.sendFile(path.join(__dirname, '../frontend/public/chatbot.html'));
+});
 app.listen(port,()=>{
     console.log(`Server is listening on http://localhost:${port}`);
 })
