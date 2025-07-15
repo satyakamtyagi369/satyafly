@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="landing-container">
+     <header>
+            <div class="titledesign">
+            <h1> CelebalFly</h1>
+            </div>
+           <div class="user-menu">
+      <button onclick="toggleDetails()">👤 <span id="username">User</span></button>
+      <div id="user-details" style="display: none;">
+        <p><strong>Name:</strong> <span id="name"></span></p>
+        <p><strong>Email:</strong> <span id="email"></span></p>
+        <p><strong>Password:</strong> <span id="password"></span></p>
+      </div>
+        </header>
+  <div class="titledesign">
+    <h1 class="titledesign">Welcome to CelebalFly</h1>
+  </div>
+  <h2 class="paradesign">Click on the Chatbot button to continue the process</h2>
+  <a href="/dashboard/chatbot/" class="chatbot-button">Chatbot</a>
+  <script>
+  function toggleDetails() {
+    const box = document.getElementById('user-details');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+  console.log("Fetching user...");
+
+  fetch('/user')
+    .then(res => res.json())
+    .then(user => {
+      console.log("User loaded:", user);
+      document.getElementById('username').textContent = user.name;
+      document.getElementById('name').textContent = user.name;
+      document.getElementById('email').textContent = user.email;
+      document.getElementById('password').textContent = user.password;
+    })
+    .catch(err => console.error("Failed to load user", err));
+  </script>
+</body>
+</html>

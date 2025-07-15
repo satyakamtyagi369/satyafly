@@ -12,14 +12,19 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "amadeus": "^11.0.0",
+    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "botbuilder": "^4.17.0-blobs1",
     "cookie-parser": "^1.4.7",
+    "dialogflow": "^1.2.0",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "restify": "^11.1.0"
   }
 }

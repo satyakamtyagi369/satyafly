@@ -1,0 +1,90 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot - CelebalFly</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    #chatbox {
+      height: 500px;
+      width: 90%;
+      max-width: 960px;
+      margin: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: scroll;
+      background-color: #f9f9f9;
+    }
+    #userInput {
+      width: 80%;
+      padding: 10px;
+      margin: 10px auto;
+      display: block;
+      font-size: 16px;
+    }
+    #sendBtn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="landing-container">
+  <header>
+    <div class="titledesign">
+      <h1>CelebalFly ChatBot</h1>
+    </div>
+    <div class="user-menu">
+      <button onclick="toggleDetails()">👤 <span id="username">User</span></button>
+      <div id="user-details" style="display: none;">
+        <p><strong>Name:</strong> <span id="name"></span></p>
+        <p><strong>Email:</strong> <span id="email"></span></p>
+        <p><strong>Password:</strong> <span id="password"></span></p>
+      </div>
+    </div>
+  </header>
+
+  <h2 class="titledesign">Welcome to Chatbot</h2>
+
+  <!-- Custom Chat UI -->
+  <div id="chatbox"></div>
+  <input type="text" id="userInput" placeholder="Type your message here..." />
+  <button id="sendBtn" onclick="sendMessage()">Send</button>
+
+  <script>
+    function toggleDetails() {
+      const box = document.getElementById('user-details');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    fetch('/user')
+      .then(res => res.json())
+      .then(user => {
+        document.getElementById('username').textContent = user.name;
+        document.getElementById('name').textContent = user.name;
+        document.getElementById('email').textContent = user.email;
+        document.getElementById('password').textContent = user.password;
+      });
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const chatbox = document.getElementById("chatbox");
+      const message = input.value.trim();
+      if (!message) return;
+
+      chatbox.innerHTML += `<div><b>You:</b> ${message}</div>`;
+
+      const response = await fetch("/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      chatbox.innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
+      input.value = '';
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
