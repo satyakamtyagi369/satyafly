@@ -4,6 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const bodyparser = require("body-parser");
 const cookieParser = require("cookie-parser");
+
 const connectDB=require('./db');
 const chatbotRoute = require('./routes/chatbot');
 const authRoutes = require("./routes/auth");
@@ -17,7 +18,7 @@ console.log("userRoutes:", typeof userRoutes);
 const app = express();
 const port = 3000;
 
-mongoose.connect("mongodb://localhost:27017/celebalFly", {
+mongoose.connect((process.env.MONGO_URI), {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => console.log("MongoDB connected."))

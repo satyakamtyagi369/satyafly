@@ -15,6 +15,7 @@
     "amadeus": "^11.0.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "botbuilder": "^4.17.0-blobs1",
     "cookie-parser": "^1.4.7",
