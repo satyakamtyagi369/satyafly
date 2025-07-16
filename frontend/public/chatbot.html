@@ -29,7 +29,6 @@
       cursor: pointer;
       background: #0eef16; color: white;
       font-size: large;
-      
       border:0.1rem solid #07de0e;
       width: 6%;
     }
@@ -49,7 +48,7 @@
 <body>
 
 <h1>CelebalFly ChatBot ✈️</h1>
-<p>Welcome to CelebalFly! Please use this format for start the message first.</p>
+<p>Welcome to CelebalFly! Please use this format to start your message:</p>
 <p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p>
 <div id="chatbox"></div>
 
@@ -85,7 +84,6 @@ async function sendMessage() {
   const data = await res.json();
   appendMessage("Bot", data.serverMessage || "…");
 
-  // If flights received
   if (data.flights && data.flights.length) {
     showFlights(data.flights);
   }
@@ -103,7 +101,11 @@ function showFlights(flights) {
         Departure: ${new Date(f.departure_time).toLocaleTimeString()}<br/>
         Arrival: ${new Date(f.arrival_time).toLocaleTimeString()}<br/>
         Price: ₹${f.price}<br/>
-        <button onclick="selectFlight('${f._id}', ${f.price})">Book This</button>
+        ${
+          f._id
+            ? `<button onclick="selectFlight('${f._id}', ${f.price})">Book This</button>`
+            : `<i style="color:gray">Cannot book (missing ID)</i>`
+        }
       </div>
     `;
   });
@@ -127,8 +129,7 @@ function selectFlight(id, price) {
   form.innerHTML += `<button onclick="submitBooking()">Confirm Booking</button>`;
   form.style.display = 'block';
 }
-
-async function submitBooking() {
+window.submitBooking = async function () {
   const form = document.getElementById('bookingForm');
   const inputs = form.querySelectorAll('input');
   const passengers = [];
@@ -140,7 +141,7 @@ async function submitBooking() {
     passengers.push({ name, email });
   }
 
-  const res = await fetch('/api/book', {
+  const res = await fetch('/confirm-booking', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ flightId: selectedFlight, passengers })
@@ -150,8 +151,10 @@ async function submitBooking() {
   if (data.message) {
     appendMessage("Bot", data.message);
     document.getElementById('bookingForm').style.display = 'none';
+  } else if (data.error) {
+    alert("Booking failed: " + data.error);
   }
-}
+};
 </script>
 
 </body>

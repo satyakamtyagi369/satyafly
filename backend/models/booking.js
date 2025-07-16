@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
     flightId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'flight',
+        ref: 'Flight',
         required: true
     },
     passengers: [

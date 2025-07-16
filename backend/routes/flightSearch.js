@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const amadeus = require('../utils/amadeus'); // adjust path if needed
+const Flight = require('../models/flight'); // import Flight model
 
-
-
-/* ish link ka use karke api test kar sakte hai server ko run karne ke baad.
-http://localhost:3000/search-flights?origin=DEL&destination=BOM&departureDate=2025-07-20
+/* Example URL:
+   http://localhost:3000/search-flights?origin=DEL&destination=BOM&departureDate=2025-07-20
 */
 router.get('/search-flights', async (req, res) => {
   try {
@@ -22,11 +21,12 @@ router.get('/search-flights', async (req, res) => {
       adults: 1,
       max: 5
     });
-    const flights = response.data.map(offer => {
+
+    const flights = await Promise.all(response.data.map(async (offer) => {
       const firstSegment = offer.itineraries[0].segments[0];
       const lastSegment = offer.itineraries[0].segments.slice(-1)[0];
 
-      return {
+      const flightData = {
         origin: firstSegment.departure.iataCode,
         destination: lastSegment.arrival.iataCode,
         airline: firstSegment.carrierCode,
@@ -34,12 +34,15 @@ router.get('/search-flights', async (req, res) => {
         arrival_time: lastSegment.arrival.at,
         price: parseFloat(offer.price.total)
       };
-    });
+      // databse me save ke liye.
+      const savedFlight = await Flight.create(flightData);
+      return savedFlight;
+    }));
 
     res.json(flights);
   } catch (error) {
     res.status(500).json({
-      error: 'Amadeus api error:',
+      error: 'Amadeus API error',
       details: error.description || error.message
     });
   }

@@ -14,6 +14,7 @@ const flightRoutes= require('./routes/flight');
 const flightSearchRoutes=require('./routes/flightSearch');
 
 const conversationroutes=require('./routes/conversationRoutes');
+const confirmBookingrequest = require('./routes/confirmBooking');
 console.log("authRoutes:", typeof authRoutes);
 console.log("dashboardRoutes:", typeof dashboardRoutes);
 console.log("userRoutes:", typeof userRoutes);
@@ -50,6 +51,8 @@ app.use(dashboardRoutes);
 app.use(userRoutes);
 app.use(flightRoutes);
 app.use(flightSearchRoutes);
+app.use(confirmBookingrequest);
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

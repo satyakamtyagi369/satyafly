@@ -28,6 +28,7 @@ function getIATACode(city) {
   return cityToIATACode[city.trim().toLowerCase()] || null;
 }
 
+// Handle user message input
 exports.handleUserInput = async (req, res) => {
   try {
     const { sessionId, userMessage } = req.body;
@@ -40,11 +41,10 @@ exports.handleUserInput = async (req, res) => {
     let response = {};
     const lower = userMessage.toLowerCase();
 
-    // 1. Full booking format: includes number of adults
+    // 1. Full format with number of people
     const matchWithPeople = userMessage.match(/book a flight from (.+) to (.+) on (.+) for (\d+) adults/i);
     if (matchWithPeople) {
       const [, origin, destination, date, number] = matchWithPeople;
-
       const originCode = getIATACode(origin);
       const destinationCode = getIATACode(destination);
 
@@ -69,7 +69,7 @@ exports.handleUserInput = async (req, res) => {
           response.serverMessage = `Here are available flights from ${origin} to ${destination} on ${date}.`;
           response.flights = flights;
 
-          // Optional: Save new flights to DB
+          // Save new flights to DB if not already present
           for (const f of flights) {
             const exists = await Flight.findOne({
               origin: f.origin,
@@ -90,7 +90,7 @@ exports.handleUserInput = async (req, res) => {
       }
     }
 
-    // 2. Budget filter
+    // 2. Budget query
     else if (lower.includes('under ₹')) {
       const match = userMessage.match(/from (.+) to (.+) on (.+) under ₹(\d+)/i);
       if (match) {
@@ -103,7 +103,7 @@ exports.handleUserInput = async (req, res) => {
             $gte: new Date(date),
             $lte: new Date(date + 'T23:59:59')
           },
-          price: { $lte: parseFloat(budget) }
+          price: { $lte: parseInt(budget) }  // ✅ FIXED
         });
 
         response.serverMessage = `Flights under ₹${budget} for ${origin} → ${destination} on ${date}`;
@@ -113,7 +113,7 @@ exports.handleUserInput = async (req, res) => {
       }
     }
 
-    // 3. Basic format (missing number of adults)
+    // 3. Prompt for number of adults
     else if (lower.includes('book a flight from')) {
       const match = userMessage.match(/book a flight from (.+) to (.+) on (.+)/i);
       if (match) {
@@ -130,7 +130,7 @@ exports.handleUserInput = async (req, res) => {
       response.serverMessage = "Sorry, I didn’t understand that. Please follow the format.";
     }
 
-    // Save server response
+    // Save bot's response to conversation
     await UserQuery.updateOne(
       { sessionId },
       { $push: { conversation: { role: 'server', message: response.serverMessage } } }
@@ -143,9 +143,16 @@ exports.handleUserInput = async (req, res) => {
   }
 };
 
+// Confirm flight booking
 exports.confirmBooking = async (req, res) => {
   try {
     const { flightId, passengers } = req.body;
+
+    // ✅ Sanity check to prevent undefined ID error
+    if (!flightId || !Array.isArray(passengers) || passengers.length === 0) {
+      return res.status(400).json({ message: "Invalid booking data." });
+    }
+
     const flight = await Flight.findById(flightId);
     if (!flight) return res.status(404).json({ message: 'Flight not found' });
 
