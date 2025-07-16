@@ -12,6 +12,8 @@ const dashboardRoutes = require("./routes/dashboard");
 const userRoutes = require("./routes/user");
 const flightRoutes= require('./routes/flight');
 const flightSearchRoutes=require('./routes/flightSearch');
+
+const conversationroutes=require('./routes/conversationRoutes');
 console.log("authRoutes:", typeof authRoutes);
 console.log("dashboardRoutes:", typeof dashboardRoutes);
 console.log("userRoutes:", typeof userRoutes);
@@ -29,6 +31,7 @@ app.use(bodyparser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use('/dashboard',chatbotRoute);
+app.use('/api',conversationroutes);
 
 // Basic routes
 app.get('/', (req, res) => {

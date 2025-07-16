@@ -1,90 +1,158 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot - CelebalFly</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CelebalFly ChatBot</title>
   <link rel="stylesheet" href="/style.css">
   <style>
+    body { font-family: sans-serif; background: #f0f4f8; padding: 20px; }
     #chatbox {
-      height: 500px;
+      height: 400px; overflow-y: auto;
+      background: rgb(77, 209, 243); padding: 15px;
+      border: 5px dashed #0eef16; border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .flight-card {
+      border: 1px solid #bcd5f0; padding: 10px;
+      margin: 8px 0; background: #f9f9f9; border-radius: 4px;
+    }
+    #userInput{
+      font-size: 1.3rem;
+      height:1.3rem;
       width: 90%;
-      max-width: 960px;
-      margin: auto;
-      border: 1px solid #ccc;
       padding: 10px;
-      overflow-y: scroll;
-      background-color: #f9f9f9;
+      border: 2px solid #0eef16;
+      border-radius: 4px;
     }
-    #userInput {
-      width: 80%;
-      padding: 10px;
-      margin: 10px auto;
-      display: block;
-      font-size: 16px;
-    }
-    #sendBtn {
-      padding: 10px 20px;
-      font-size: 16px;
+    #sendBtn{
       cursor: pointer;
+      background: #0eef16; color: white;
+      font-size: large;
+      
+      border:0.1rem solid #07de0e;
+      width: 6%;
+    }
+
+    #bookingForm {
+      display: none;
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #aaa;
+      background: #fff;
+    }
+    .passenger-input {
+      margin-bottom: 10px;
     }
   </style>
 </head>
-<body class="landing-container">
-  <header>
-    <div class="titledesign">
-      <h1>CelebalFly ChatBot</h1>
-    </div>
-    <div class="user-menu">
-      <button onclick="toggleDetails()">👤 <span id="username">User</span></button>
-      <div id="user-details" style="display: none;">
-        <p><strong>Name:</strong> <span id="name"></span></p>
-        <p><strong>Email:</strong> <span id="email"></span></p>
-        <p><strong>Password:</strong> <span id="password"></span></p>
+<body>
+
+<h1>CelebalFly ChatBot ✈️</h1>
+<p>Welcome to CelebalFly! Please use this format for start the message first.</p>
+<p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p>
+<div id="chatbox"></div>
+
+<input type="text" id="userInput" placeholder="Type your message..." />
+<button id="sendBtn" onclick="sendMessage()">Send</button>
+
+<div id="bookingForm"></div>
+
+<script>
+let sessionId = Date.now().toString();
+let selectedFlight = null;
+let passengerCount = 0;
+
+function appendMessage(role, text) {
+  const chatbox = document.getElementById('chatbox');
+  chatbox.innerHTML += `<div><b>${role}:</b> ${text}</div>`;
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendMessage("You", message);
+
+  const res = await fetch('/api/conversation', {
+    method: 'POST',
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId, userMessage: message })
+  });
+
+  const data = await res.json();
+  appendMessage("Bot", data.serverMessage || "…");
+
+  // If flights received
+  if (data.flights && data.flights.length) {
+    showFlights(data.flights);
+  }
+
+  input.value = '';
+}
+
+function showFlights(flights) {
+  const chatbox = document.getElementById('chatbox');
+  flights.forEach((f, idx) => {
+    chatbox.innerHTML += `
+      <div class="flight-card">
+        ✈️ <b>${f.origin}</b> → <b>${f.destination}</b><br/>
+        Airline: ${f.airline} <br/>
+        Departure: ${new Date(f.departure_time).toLocaleTimeString()}<br/>
+        Arrival: ${new Date(f.arrival_time).toLocaleTimeString()}<br/>
+        Price: ₹${f.price}<br/>
+        <button onclick="selectFlight('${f._id}', ${f.price})">Book This</button>
       </div>
-    </div>
-  </header>
+    `;
+  });
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
 
-  <h2 class="titledesign">Welcome to Chatbot</h2>
+function selectFlight(id, price) {
+  selectedFlight = id;
+  passengerCount = prompt("How many passengers?");
+  if (!passengerCount || isNaN(passengerCount)) return alert("Invalid number");
 
-  <!-- Custom Chat UI -->
-  <div id="chatbox"></div>
-  <input type="text" id="userInput" placeholder="Type your message here..." />
-  <button id="sendBtn" onclick="sendMessage()">Send</button>
+  const form = document.getElementById('bookingForm');
+  form.innerHTML = `<h3>Passenger Details (${passengerCount})</h3>`;
+  for (let i = 0; i < passengerCount; i++) {
+    form.innerHTML += `
+      <div class="passenger-input">
+        Name: <input type="text" name="name${i}" required />
+        Email: <input type="email" name="email${i}" required />
+      </div>`;
+  }
+  form.innerHTML += `<button onclick="submitBooking()">Confirm Booking</button>`;
+  form.style.display = 'block';
+}
 
-  <script>
-    function toggleDetails() {
-      const box = document.getElementById('user-details');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
+async function submitBooking() {
+  const form = document.getElementById('bookingForm');
+  const inputs = form.querySelectorAll('input');
+  const passengers = [];
 
-    fetch('/user')
-      .then(res => res.json())
-      .then(user => {
-        document.getElementById('username').textContent = user.name;
-        document.getElementById('name').textContent = user.name;
-        document.getElementById('email').textContent = user.email;
-        document.getElementById('password').textContent = user.password;
-      });
+  for (let i = 0; i < passengerCount; i++) {
+    const name = inputs[i * 2].value;
+    const email = inputs[i * 2 + 1].value;
+    if (!name || !email) return alert("All fields required");
+    passengers.push({ name, email });
+  }
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatbox = document.getElementById("chatbox");
-      const message = input.value.trim();
-      if (!message) return;
+  const res = await fetch('/api/book', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ flightId: selectedFlight, passengers })
+  });
 
-      chatbox.innerHTML += `<div><b>You:</b> ${message}</div>`;
+  const data = await res.json();
+  if (data.message) {
+    appendMessage("Bot", data.message);
+    document.getElementById('bookingForm').style.display = 'none';
+  }
+}
+</script>
 
-      const response = await fetch("/chatbot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await response.json();
-      chatbox.innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
-      input.value = '';
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
-  </script>
 </body>
 </html>
