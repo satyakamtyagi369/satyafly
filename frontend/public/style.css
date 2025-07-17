@@ -26,6 +26,14 @@ body.login{
       background-clip: text;
       color: transparent;
 }
+.chatbotstyledesign{
+  font-weight: bold;
+  background: linear-gradient(to right, purple, pink, lightblue, cyan);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
 .paradesign{
   font-weight:bold;
   background:linear-gradient(to right,green, yellow, orange,red);

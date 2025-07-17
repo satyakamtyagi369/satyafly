@@ -14,23 +14,35 @@
       margin-bottom: 10px;
     }
     .flight-card {
-      border: 1px solid #bcd5f0; padding: 10px;
-      margin: 8px 0; background: #f9f9f9; border-radius: 4px;
+      border: 1px solid #d0e4f7;
+      padding: 16px;
+      margin: 12px 0;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      max-width: 500px;
+      font-family: 'Segoe UI', sans-serif;
+      transition: transform 0.2s ease;
     }
     #userInput{
-      font-size: 1.3rem;
-      height:1.3rem;
+      font-size: 1.8rem;
+      height:1.8rem;
       width: 90%;
       padding: 10px;
       border: 2px solid #0eef16;
       border-radius: 4px;
+      color:#160393;
+      font-weight: bold;
+      padding:1rem;
     }
     #sendBtn{
       cursor: pointer;
-      background: #0eef16; color: white;
-      font-size: large;
+      background: #b9fcbb; 
+      color: white;
+      font-size: 1.5rem;
       border:0.1rem solid #07de0e;
       width: 6%;
+      border-radius: 60%;
     }
 
     #bookingForm {
@@ -42,18 +54,110 @@
     }
     .passenger-input {
       margin-bottom: 10px;
+      border: 0.1rem dashed #16f840;
+      padding: 16px;
+      margin: 12px 0;
+      background: skyblue;
+      border-radius: 1rem;
+      box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.25);
+      max-width: 31rem;
+      font-family: 'Segoe UI', sans-serif;
+      transition: transform 0.2s ease;
     }
+    .designbutton {
+      background: #0eef16;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .chatbottitledesign {
+      font-weight: bold;
+      background: linear-gradient(to right,
+        blue 20%, 
+        rgb(98, 98, 207) 56%,
+        red 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; /* for Firefox */
+      color: transparent;
+    }
+    .symbolflex{
+      display:flex;
+    }
+    .navdesign{
+      background-color: black;
+    }
+       #bookingForm {
+  display: block; /* or 'none' if hiding initially via JS */
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #d0e4f7;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.3s ease;
+}
+
+#bookingForm h2 {
+  font-size: 22px;
+  margin-bottom: 16px;
+  color: #1a73e8;
+  text-align: center;
+}
+
+#bookingForm label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+#bookingForm input,
+#bookingForm select,
+#bookingForm textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+#bookingForm button {
+  width: 100%;
+  background-color: #1a73e8;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#bookingForm button:hover {
+  background-color: #155ab6;
+}
+
   </style>
 </head>
 <body>
+  <div class="navdesign">
+<div class="symbolflex">
+<h1><h1 class="chatbottitledesign">CelebalFly ChatBot </h1> ✈️</h1></div>
+<div class="paradesign">
+<p>Welcome to CelebalFly! Please use this format when enter your message:</p>
+<p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p></div>
+</div>
 
-<h1>CelebalFly ChatBot ✈️</h1>
-<p>Welcome to CelebalFly! Please use this format to start your message:</p>
-<p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p>
 <div id="chatbox"></div>
-
 <input type="text" id="userInput" placeholder="Type your message..." />
-<button id="sendBtn" onclick="sendMessage()">Send</button>
+<button id="sendBtn" onclick="sendMessage()">✈️</button>
 
 <div id="bookingForm"></div>
 
@@ -100,10 +204,10 @@ function showFlights(flights) {
         Airline: ${f.airline} <br/>
         Departure: ${new Date(f.departure_time).toLocaleTimeString()}<br/>
         Arrival: ${new Date(f.arrival_time).toLocaleTimeString()}<br/>
-        Price: ₹${f.price}<br/>
+        Price: $${f.price}<br/>
         ${
           f._id
-            ? `<button onclick="selectFlight('${f._id}', ${f.price})">Book This</button>`
+            ? `<button class="designbutton" onclick="selectFlight('${f._id}', ${f.price})">Book This</button>`
             : `<i style="color:gray">Cannot book (missing ID)</i>`
         }
       </div>
@@ -126,7 +230,7 @@ function selectFlight(id, price) {
         Email: <input type="email" name="email${i}" required />
       </div>`;
   }
-  form.innerHTML += `<button onclick="submitBooking()">Confirm Booking</button>`;
+  form.innerHTML += `<button class=designbutton onclick="submitBooking()">Confirm Booking</button>`;
   form.style.display = 'block';
 }
 window.submitBooking = async function () {
@@ -146,16 +250,14 @@ window.submitBooking = async function () {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ flightId: selectedFlight, passengers })
   });
-
   const data = await res.json();
   if (data.message) {
     appendMessage("Bot", data.message);
-    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('bookingForm');
   } else if (data.error) {
     alert("Booking failed: " + data.error);
   }
 };
 </script>
-
 </body>
 </html>
