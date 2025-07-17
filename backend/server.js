@@ -51,7 +51,7 @@ app.use(dashboardRoutes);
 app.use(userRoutes);
 app.use(flightRoutes);
 app.use(flightSearchRoutes);
-app.use(confirmBookingrequest);
+app.use('/',confirmBookingrequest);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

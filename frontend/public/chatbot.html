@@ -44,13 +44,16 @@
       width: 6%;
       border-radius: 60%;
     }
-
     #bookingForm {
       display: none;
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid #aaa;
-      background: #fff;
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 24px;
+      background-color: #ffffff;
+      border: 1px solid #d0e4f7;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+      font-family: 'Segoe UI', sans-serif;
     }
     .passenger-input {
       margin-bottom: 10px;
@@ -61,8 +64,6 @@
       border-radius: 1rem;
       box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.25);
       max-width: 31rem;
-      font-family: 'Segoe UI', sans-serif;
-      transition: transform 0.2s ease;
     }
     .designbutton {
       background: #0eef16;
@@ -81,183 +82,162 @@
         red 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text; /* for Firefox */
+      background-clip: text;
       color: transparent;
     }
-    .symbolflex{
-      display:flex;
+    .symbolflex {
+      display: flex;
     }
-    .navdesign{
+    .navdesign {
       background-color: black;
+      padding: 10px;
     }
-       #bookingForm {
-  display: block; /* or 'none' if hiding initially via JS */
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 24px;
-  background-color: #ffffff;
-  border: 1px solid #d0e4f7;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
-  font-family: 'Segoe UI', sans-serif;
-  transition: all 0.3s ease;
-}
-
-#bookingForm h2 {
-  font-size: 22px;
-  margin-bottom: 16px;
-  color: #1a73e8;
-  text-align: center;
-}
-
-#bookingForm label {
-  display: block;
-  margin: 12px 0 6px;
-  font-weight: 500;
-  color: #333;
-}
-
-#bookingForm input,
-#bookingForm select,
-#bookingForm textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 14px;
-  font-size: 14px;
-}
-
-#bookingForm button {
-  width: 100%;
-  background-color: #1a73e8;
-  color: #fff;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-#bookingForm button:hover {
-  background-color: #155ab6;
-}
-
+    .ticket-card {
+      background: #fff;
+      border: 2px dashed #1a73e8;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      max-width: 600px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+    .ticket-card h3 {
+      margin-top: 0;
+      color: #1a73e8;
+    }
   </style>
 </head>
 <body>
   <div class="navdesign">
-<div class="symbolflex">
-<h1><h1 class="chatbottitledesign">CelebalFly ChatBot </h1> ✈️</h1></div>
-<div class="paradesign">
-<p>Welcome to CelebalFly! Please use this format when enter your message:</p>
-<p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p></div>
-</div>
+    <div class="symbolflex">
+      <h1 class="chatbottitledesign">CelebalFly ChatBot </h1> ✈️
+    </div>
+    <div class="paradesign">
+      <p>Welcome to CelebalFly! Please use this format when entering your message:</p>
+      <p>book a flight from {origin} to {destination} on {YYYY-MM-DD}</p>
+    </div>
+  </div>
 
-<div id="chatbox"></div>
-<input type="text" id="userInput" placeholder="Type your message..." />
-<button id="sendBtn" onclick="sendMessage()">✈️</button>
+  <div id="chatbox"></div>
+  <input type="text" id="userInput" placeholder="Type your message..." />
+  <button id="sendBtn" onclick="sendMessage()">✈️</button>
 
-<div id="bookingForm"></div>
+  <div id="bookingForm"></div>
 
-<script>
-let sessionId = Date.now().toString();
-let selectedFlight = null;
-let passengerCount = 0;
+  <script>
+    let sessionId = Date.now().toString();
+    let selectedFlight = null;
+    let passengerCount = 0;
 
-function appendMessage(role, text) {
-  const chatbox = document.getElementById('chatbox');
-  chatbox.innerHTML += `<div><b>${role}:</b> ${text}</div>`;
-  chatbox.scrollTop = chatbox.scrollHeight;
-}
+    function appendMessage(role, text) {
+      const chatbox = document.getElementById('chatbox');
+      chatbox.innerHTML += `<div><b>${role}:</b> ${text}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
 
-async function sendMessage() {
-  const input = document.getElementById('userInput');
-  const message = input.value.trim();
-  if (!message) return;
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
 
-  appendMessage("You", message);
+      appendMessage("You", message);
 
-  const res = await fetch('/api/conversation', {
-    method: 'POST',
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, userMessage: message })
-  });
+      const res = await fetch('/api/conversation', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, userMessage: message })
+      });
 
-  const data = await res.json();
-  appendMessage("Bot", data.serverMessage || "…");
+      const data = await res.json();
+      appendMessage("Bot", data.serverMessage || "…");
 
-  if (data.flights && data.flights.length) {
-    showFlights(data.flights);
-  }
+      if (data.flights && data.flights.length) {
+        showFlights(data.flights);
+      }
 
-  input.value = '';
-}
+      input.value = '';
+    }
 
-function showFlights(flights) {
-  const chatbox = document.getElementById('chatbox');
-  flights.forEach((f, idx) => {
-    chatbox.innerHTML += `
-      <div class="flight-card">
-        ✈️ <b>${f.origin}</b> → <b>${f.destination}</b><br/>
-        Airline: ${f.airline} <br/>
-        Departure: ${new Date(f.departure_time).toLocaleTimeString()}<br/>
-        Arrival: ${new Date(f.arrival_time).toLocaleTimeString()}<br/>
-        Price: $${f.price}<br/>
-        ${
-          f._id
-            ? `<button class="designbutton" onclick="selectFlight('${f._id}', ${f.price})">Book This</button>`
-            : `<i style="color:gray">Cannot book (missing ID)</i>`
-        }
-      </div>
-    `;
-  });
-  chatbox.scrollTop = chatbox.scrollHeight;
-}
+    function showFlights(flights) {
+      const chatbox = document.getElementById('chatbox');
+      flights.forEach((f, idx) => {
+        chatbox.innerHTML += `
+          <div class="flight-card">
+            ✈️ <b>${f.origin}</b> → <b>${f.destination}</b><br/>
+            Airline: ${f.airline} <br/>
+            Departure: ${new Date(f.departure_time).toLocaleTimeString()}<br/>
+            Arrival: ${new Date(f.arrival_time).toLocaleTimeString()}<br/>
+            Price: $${f.price}<br/>
+            ${f._id ? `<button class="designbutton" onclick="selectFlight('${f._id}', ${f.price})">Book This</button>` : `<i style="color:gray">Cannot book (missing ID)</i>`}
+          </div>
+        `;
+      });
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
 
-function selectFlight(id, price) {
-  selectedFlight = id;
-  passengerCount = prompt("How many passengers?");
-  if (!passengerCount || isNaN(passengerCount)) return alert("Invalid number");
+    function selectFlight(id, price) {
+      selectedFlight = id;
+      passengerCount = prompt("How many passengers?");
+      if (!passengerCount || isNaN(passengerCount)) return alert("Invalid number");
 
-  const form = document.getElementById('bookingForm');
-  form.innerHTML = `<h3>Passenger Details (${passengerCount})</h3>`;
-  for (let i = 0; i < passengerCount; i++) {
-    form.innerHTML += `
-      <div class="passenger-input">
-        Name: <input type="text" name="name${i}" required />
-        Email: <input type="email" name="email${i}" required />
-      </div>`;
-  }
-  form.innerHTML += `<button class=designbutton onclick="submitBooking()">Confirm Booking</button>`;
-  form.style.display = 'block';
-}
-window.submitBooking = async function () {
-  const form = document.getElementById('bookingForm');
-  const inputs = form.querySelectorAll('input');
-  const passengers = [];
+      const form = document.getElementById('bookingForm');
+      form.innerHTML = `<h3>Passenger Details (${passengerCount})</h3>`;
+      for (let i = 0; i < passengerCount; i++) {
+        form.innerHTML += `
+          <div class="passenger-input">
+            Name: <input type="text" name="name${i}" required />
+            <br>
+            Email: <input type="email" name="email${i}" required />
+          </div>`;
+      }
+      form.innerHTML += `<button class="designbutton" onclick="submitBooking()">Confirm Booking</button>`;
+      form.style.display = 'block';
+    }
 
-  for (let i = 0; i < passengerCount; i++) {
-    const name = inputs[i * 2].value;
-    const email = inputs[i * 2 + 1].value;
-    if (!name || !email) return alert("All fields required");
-    passengers.push({ name, email });
-  }
+    window.submitBooking = async function () {
+      const form = document.getElementById('bookingForm');
+      const inputs = form.querySelectorAll('input');
+      const passengers = [];
 
-  const res = await fetch('/confirm-booking', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ flightId: selectedFlight, passengers })
-  });
-  const data = await res.json();
-  if (data.message) {
-    appendMessage("Bot", data.message);
-    document.getElementById('bookingForm');
-  } else if (data.error) {
-    alert("Booking failed: " + data.error);
-  }
-};
-</script>
+      for (let i = 0; i < passengerCount; i++) {
+        const name = inputs[i * 2].value;
+        const email = inputs[i * 2 + 1].value;
+        if (!name || !email) return alert("All fields required");
+        passengers.push({ name, email });
+      }
+
+      const res = await fetch('/confirm-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flightId: selectedFlight, passengers })
+      });
+
+      const data = await res.json();
+      if (data.message) {
+        appendMessage("Bot", data.message);
+        form.style.display = 'none';
+        displayTicket(data.ticket);
+      } else if (data.error) {
+        alert("Booking failed: " + data.error);
+      }
+    };
+
+    function displayTicket(ticket) {
+      const chatbox = document.getElementById('chatbox');
+      const passengerList = ticket.passengers.map(p => `<li>${p.name} (${p.email})</li>`).join('');
+      chatbox.innerHTML += `
+        <div class="ticket-card">
+          <h3>🎫 Ticket ID: ${ticket.ticketId}</h3>
+          <p><b>${ticket.flight.origin}</b> → <b>${ticket.flight.destination}</b></p>
+          <p>Airline: ${ticket.flight.airline}</p>
+          <p>Departure: ${new Date(ticket.flight.departure).toLocaleString()}</p>
+          <p>Arrival: ${new Date(ticket.flight.arrival).toLocaleString()}</p>
+          <p><b>Passengers:</b></p>
+          <ul>${passengerList}</ul>
+        </div>
+      `;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
 </body>
 </html>
