@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-
+// mongodb ke liye booking schema define karenge
+// booking schema me flightId, passengers, numberOfPeople, totalAmount aur status define karenge.
+// passengers me name aur email define karenge.
 const bookingSchema = new mongoose.Schema({
     flightId: {
         type: mongoose.Schema.Types.ObjectId,
