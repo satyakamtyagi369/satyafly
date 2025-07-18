@@ -3,14 +3,16 @@ const Flight = require('../models/flight');
 const Booking = require('../models/booking');
 const UserQuery = require('../models/query');
 
-// Format templates
+// user prompt ke liye kuch formats define kiye hain.
+// ye formats user ko guide karne ke liye hain ki unhe kaise input den
 const formats = {
   initial: "book a flight from {origin} to {destination} on {date}",
   withPeople: "book a flight from {origin} to {destination} on {date} for {number} adults",
-  budget: "flights from {origin} to {destination} on {date} under ₹{budget}"
+  budget: "flights from {origin} to {destination} on {date} under {budget}"
 };
 
-// Mapping of city names to IATA codes
+// abveriviations for cites kyko api me pura naam nahi chalta hai.
+// isliye humne yaha pe cities ke IATA codes define kiye hain.
 const cityToIATACode = {
   delhi: "DEL",
   mumbai: "BOM",
@@ -23,12 +25,14 @@ const cityToIATACode = {
   goa: "GOI"
 };
 
-// Helper to get IATA code from city name
+// city ka nama uppercase me ho to voh lowercase me convert kar ke IATA code return karega.
+// agar city ka naam nahi mila to null return karega.
 function getIATACode(city) {
   return cityToIATACode[city.trim().toLowerCase()] || null;
 }
 
-// Handle user message input
+// yeh user ke input message ko handle karega.
+// yeh function user ke input ko process karega aur response generate karega.
 exports.handleUserInput = async (req, res) => {
   try {
     const { sessionId, userMessage } = req.body;
@@ -41,7 +45,9 @@ exports.handleUserInput = async (req, res) => {
     let response = {};
     const lower = userMessage.toLowerCase();
 
-    // 1. Full format with number of people
+    // yeh conversation language understand CLU ki madad se user ke input ko process karega.
+    // uski madad se hum alag-alag queries ko handle kar sakte hain.
+    // source, destination, date, aur number of adults ko amadeus API se fetch karne ke liye use karenge.
     const matchWithPeople = userMessage.match(/book a flight from (.+) to (.+) on (.+) for (\d+) adults/i);
     if (matchWithPeople) {
       const [, origin, destination, date, number] = matchWithPeople;
@@ -49,6 +55,7 @@ exports.handleUserInput = async (req, res) => {
       const destinationCode = getIATACode(destination);
 
       if (!originCode || !destinationCode) {
+        // uper jo cities de rakhi hai sirf vahi cities ke naam chalega.
         response.serverMessage = "Invalid city name. Please use cities like Delhi, Mumbai, Chandigarh, etc.";
         return res.status(200).json(response);
       }
@@ -69,7 +76,9 @@ exports.handleUserInput = async (req, res) => {
           response.serverMessage = `Here are available flights from ${origin} to ${destination} on ${date}.`;
           response.flights = flights;
 
-          // Save new flights to DB if not already present
+          // database me flights save karne ke liye, agar flights already exist nahi hai to save karega.
+          // agar flights already exist hai to save nahi karega.
+          // isse database me duplicate entries nahi hongi.
           for (const f of flights) {
             const exists = await Flight.findOne({
               origin: f.origin,
@@ -90,9 +99,10 @@ exports.handleUserInput = async (req, res) => {
       }
     }
 
-    // 2. Budget query
+    // kisiko budget ke hisaab se flights chahiye to uske liye alag se handle karega.
+    // budget ke hisaab se flights ko filter karega.
     else if (lower.includes('under ₹')) {
-      const match = userMessage.match(/from (.+) to (.+) on (.+) under ₹(\d+)/i);
+      const match = userMessage.match(/flights from (.+) to (.+) on (.+) under (\d+)/i);
       if (match) {
         const [, origin, destination, date, budget] = match;
 
@@ -103,7 +113,7 @@ exports.handleUserInput = async (req, res) => {
             $gte: new Date(date),
             $lte: new Date(date + 'T23:59:59')
           },
-          price: { $lte: parseInt(budget) }  // ✅ FIXED
+          price: { $lte: parseFloat(budget) } // budget ko Float me convert karega
         });
 
         response.serverMessage = `Flights under ₹${budget} for ${origin} → ${destination} on ${date}`;
@@ -113,19 +123,21 @@ exports.handleUserInput = async (req, res) => {
       }
     }
 
-    // 3. Prompt for number of adults
+    // kisi ne sirf flight book karne ke liye kaha hai to uske liye alag se handle karega.
+
     else if (lower.includes('book a flight from')) {
       const match = userMessage.match(/book a flight from (.+) to (.+) on (.+)/i);
       if (match) {
         const [, origin, destination, date] = match;
         response.serverMessage = `How many people are flying? Use format: ${formats.withPeople}`;
+        // kitne log flight book kar rahe hain, uska context set karega.
         response.context = { origin, destination, date };
       } else {
         response.serverMessage = `Please use format: ${formats.initial}`;
       }
     }
 
-    // 4. Fallback
+    // agar user ne promt me kuch aur diya hai to uske liye alag se handle karega.
     else {
       response.serverMessage = "Sorry, I didn’t understand that. Please follow the format.";
     }
@@ -143,12 +155,14 @@ exports.handleUserInput = async (req, res) => {
   }
 };
 
-// Confirm flight booking
+// booking confirm karne ke liye function.
+// yeh function user ke booking request ko handle karega.
 exports.confirmBooking = async (req, res) => {
   try {
     const { flightId, passengers } = req.body;
 
-    // ✅ Sanity check to prevent undefined ID error
+    // booking ke liye flightId aur passengers ki list chahiye hoti hai.
+    // agar flightId ya passengers ki list nahi hai to error return karega.
     if (!flightId || !Array.isArray(passengers) || passengers.length === 0) {
       return res.status(400).json({ message: "Invalid booking data." });
     }

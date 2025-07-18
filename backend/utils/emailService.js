@@ -6,6 +6,11 @@ const transporter = nodemailer.createTransport({
         pass:process.env.GMAIL_PASSWORD,
     },
 });
+// is file me email service banayenge jo booking confirmation ke liye email bhejega
+// yeh email service booking ke baad passenger ko flight details bhejegi
+// iske liye hum nodemailer ka use karenge jo email bhejne ke liye use hota hai
+// iske liye humein Gmail ka SMTP server use karna padega
+// iske liye humein nodemailer package ko install karna padega
 async function sendBookingEmail(toEmail, passengerName,flight){
    const mailOptions = {
     from: `"CelebalFly" <${process.env.GMAIL_USER}>`,
@@ -23,7 +28,7 @@ async function sendBookingEmail(toEmail, passengerName,flight){
         <li><b>Arrival:</b> ${new Date(flight.arrival_time).toLocaleString()}</li>
         <li><b>Price:</b> $${flight.price}</li>
       </ul>
-      <p>✈️ Safe travels!<br>Team CelebalFly</p>
+      <p>✈️ Your's safety, our safety!<br>Team CelebalFly</p>
     `,
   };
   await transporter.sendMail(mailOptions);

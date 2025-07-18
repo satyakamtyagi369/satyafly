@@ -4,9 +4,11 @@ const User = require('../models/User');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
-
+// JWT_SECRET ko .env file se import karenge.
 router.get('/user', async (req, res) => {
     const token = req.cookies.token;
+    // token ko cookies se lete hain
+    // agar token nahi hai toh user ko unauthorized response denge
     if (!token) return res.status(401).json({ error: 'Not logged in' });
 
     try {

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-
 const userQuerySchema = new mongoose.Schema({
+    // User query schema define karenge
     sessionId: {
         type: String,
         required: true

@@ -3,6 +3,8 @@ const router = express.Router();
 const Flight = require('../models/flight');
 router.post('/flights',async (req,res)=>{
     try{
+        // flight details ko request body se lete hain
+        // aur database me save karte hain
         const {origin,destination,airline,departure_time,arrival_time, price}=req.body;
         const newFlight= new Flight({
             origin,destination, airline, departure_time, arrival_time,price

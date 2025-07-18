@@ -4,7 +4,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 
-// JWT_SECRET from .env (not hardcoded ideally)
+// JWT_SECRET from .env file se import karenge.
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/signup', async (req, res) => {

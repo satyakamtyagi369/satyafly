@@ -1,10 +1,9 @@
 const Amadeus = require("amadeus");
-
+// Amadeus API client import karenge
 const amadeus = new Amadeus({
   clientId: process.env.AMADEUS_CLIENT_ID,
   clientSecret: process.env.AMADEUS_CLIENT_SECRET,
 });
-
 async function searchFlights(origin, destination, date, adults) {
   try {
     const response = await amadeus.shopping.flightOffersSearch.get({
@@ -20,5 +19,4 @@ async function searchFlights(origin, destination, date, adults) {
     return null;
   }
 }
-
 module.exports = { searchFlights };

@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/booking');
 const Flight = require('../models/flight');
-const sendBookingEmail = require('../utils/emailService'); // Add this
-
+const sendBookingEmail = require('../utils/emailService'); // Email service for sending booking confirmation emails
 router.post('/confirm-booking', async (req, res) => {
   try {
     const { flightId, passengers } = req.body;
@@ -20,7 +19,8 @@ router.post('/confirm-booking', async (req, res) => {
     const numberOfPeople = passengers.length;
     const totalAmount = numberOfPeople * flight.price;
     const ticketId = "TKT" + Math.floor(Math.random() * 900000 + 100000); // Random 6-digit ticket ID
-
+    // ticketId generate karne ke liye random number use karenge
+    // Booking object create karenge
     const booking = new Booking({
       flightId,
       passengers,
@@ -32,12 +32,14 @@ router.post('/confirm-booking', async (req, res) => {
 
     await booking.save();
 
-    // Send emails to each passenger
+    // booking confirmation email bhejne ke liye
+    // passengers ke email aur name se booking confirmation email bhejenge
     for (const passenger of passengers) {
       await sendBookingEmail(passenger.email, passenger.name, flight);
     }
 
-    // Prepare ticket data to return to frontend
+    // ticket object create karenge
+    // ticket object me ticketId, flight details aur passengers details include karenge
     const ticket = {
       ticketId,
       flight: {

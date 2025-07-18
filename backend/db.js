@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 dotenv.config();
-
+// is file me hum MongoDB ke saath connection establish karenge
+// mongoose ko use karke MongoDB se connect karenge
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {

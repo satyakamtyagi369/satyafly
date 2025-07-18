@@ -4,6 +4,9 @@ const path = require("path");
 const mongoose = require("mongoose");
 const bodyparser = require("body-parser");
 const cookieParser = require("cookie-parser");
+// is file me hum server ko setup karenge
+// yeh server Express framework ka use karke banaya gaya hai
+// is file me hum routes ko import karenge aur server ko start karenge 
 
 const connectDB=require('./db');
 const chatbotRoute = require('./routes/chatbot');
