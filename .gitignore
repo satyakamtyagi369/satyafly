@@ -30,3 +30,4 @@ frontend/.env.local
 frontend/.env_next
 backend/.env
 backend/.env.local
+backend/node_modules/
